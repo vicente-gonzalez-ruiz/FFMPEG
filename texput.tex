@@ -1,0 +1,990 @@
+% https://trac.ffmpeg.org/wiki
+
+\title{\href{https://www.ffmpeg.org}{FFMPEG}/\href{https://libav.org}{Libav}}
+
+\maketitle
+\tableofcontents
+
+\chapter{Introduction}
+%{{{
+
+\section{FFMPEG vs Libav}
+%{{{
+
+\begin{itemize}
+\item Libav is a fork of FFMPEG which was originally started by
+  Fabrice Bellard. The fork was basically
+  a \href{http://blog.pkh.me/p/13-the-ffmpeg-libav-situation.html}{non-amicable
+  result of conflicting personalities and development styles within
+  the FFmpeg community}.
+\end{itemize}
+
+%}}}
+
+\section{Free sofware and patents}
+%{{{
+
+\begin{itemize}
+\item Both, FFMPEG and Libav contains more than 100 codecs. Many
+  codecs that compress information have been claimed by patent
+  holders. Such claims may be enforceable in countries like the United
+  States which have implemented software patents, but are considered
+  unenforceable or void in countries that have not implemented
+  patents.
+\end{itemize}
+
+%}}}
+
+%}}}
+
+\chapter{\href{https://trac.ffmpeg.org/wiki/CompilationGuide}{Installation}}
+%{{{
+
+\section{FFMPEG}
+%{{{
+
+\subsection{\href{https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu}{Ubuntu}}
+%{{{
+
+\begin{itemize}
+\item In Debian/Ubuntu this is the preferable way because: (1) is the most general --
+  it could be used in any distribution without significative
+  modifications --, (2) uses the lastest software and (3) produces the
+  most efficient machine code.
+\begin{verbatim}
+mkdir ~/src
+cd ~/src
+
+# libx264
+wget http://download.videolan.org/pub/x264/snapshots/last_x264.tar.bz2
+tar xjvf last_x264.tar.bz2
+cd x264-snapshot*
+PATH="$PATH:$HOME/bin" ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --enable-static --disable-opencl
+PATH="$PATH:$HOME/bin" make
+make install
+make distclean
+cd ..
+
+# libfdk-aac (make sure "libtool" is installed)
+wget -O fdk-aac.zip https://github.com/mstorsjo/fdk-aac/zipball/master
+unzip fdk-aac.zip
+cd mstorsjo-fdk-aac*
+autoreconf -fiv
+./configure --prefix="$HOME/ffmpeg_build" --disable-shared
+make
+make install
+make distclean
+cd ..
+
+# libmp3lame (make sure "nasm" is installed)
+wget http://downloads.sourceforge.net/project/lame/lame/3.99/lame-3.99.5.tar.gz
+tar xzvf lame-3.99.5.tar.gz
+cd lame-3.99.5
+./configure --prefix="$HOME/ffmpeg_build" --enable-nasm --disable-shared
+make
+make install
+make distclean
+cd ..
+
+# libopus
+wget http://downloads.xiph.org/releases/opus/opus-1.1.tar.gz
+tar xzvf opus-1.1.tar.gz
+cd opus-1.1
+./configure --prefix="$HOME/ffmpeg_build" --disable-shared
+make
+make install
+make distclean
+cd ..
+
+# libvpx (VP8/VP9)
+wget http://webm.googlecode.com/files/libvpx-v1.3.0.tar.bz2
+tar xjvf libvpx-v1.3.0.tar.bz2
+cd libvpx-v1.3.0
+PATH="$PATH:$HOME/bin" ./configure --prefix="$HOME/ffmpeg_build" --disable-examples
+PATH="$PATH:$HOME/bin" make
+make install
+make clean
+cd ..
+
+# libogg
+wget http://downloads.xiph.org/releases/ogg/libogg-1.3.1.tar.gz
+tar xvf libogg-1.3.1.tar.gz
+cd libogg-1.3.1
+./configure --prefix="$HOME/ffmpeg_build" --disable-shared
+make
+make install
+make distclean
+cd ..
+
+# libvorbis
+wget http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.3.tar.gz
+tar xvf libvorbis-1.3.3.tar.gz
+cd libvorbis-1.3.3
+./configure --prefix="$HOME/ffmpeg_build" --disable-shared
+make
+make install
+make distclean
+cd ..
+
+# libtheora (make sure "texlive-fonts-recommended" and "doxygen" are installed)
+wget http://downloads.xiph.org/releases/theora/libtheora-1.1.1.tar.bz2
+tar xjvf libtheora-1.1.1.tar.bz2
+cd libtheora-1.1.1
+./configure --prefix="$HOME/ffmpeg_build" --disable-shared --with-ogg="$HOME/ffmpeg_build"
+make
+make install
+make distclean
+cd ..
+
+# ffmpeg (make sure "libass-dev", "libasound2-dev", "libsdl1.2-dev" 
+# and "libx11-dev" are installed)
+git clone git://source.ffmpeg.org/ffmpeg.git ffmpeg
+cd ffmpeg
+PATH="$PATH:$HOME/bin" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure \
+  --prefix="$HOME/ffmpeg_build" \
+  --extra-cflags="-I$HOME/ffmpeg_build/include" \
+  --extra-ldflags="-L$HOME/ffmpeg_build/lib" \
+  --bindir="$HOME/bin" \
+  --enable-gpl \
+  --enable-libass \
+  --enable-libfdk-aac \
+  --enable-libfreetype \
+  --enable-libmp3lame \
+  --enable-libopus \
+  --enable-libtheora \
+  --enable-libvorbis \
+  --enable-libvpx \
+  --enable-libx264 \
+  --enable-nonfree \
+  --extra-libs=-lasound \
+  --enable-x11grab
+
+# Note: at the moment of writting this document, there is a bug in the
+# "x11grab" code (libxcb). If it persits, remove this option.
+
+make
+make install
+make distclean
+hash -r
+\end{verbatim}
+\end{itemize}
+
+%}}}
+
+\subsection{\href{https://wiki.archlinux.org/index.php/FFmpeg}{Arch Linux}}
+%{{{
+
+\begin{itemize}
+\item Standard package:
+%{{{
+
+\begin{verbatim}
+sudo pacman -S ffmpeg
+\end{verbatim}
+
+%}}}
+
+\item Full package:
+% Instalar en el arch linux del mac
+\begin{verbatim}
+wget https://aur.archlinux.org/packages/ff/ffmpeg-full/ffmpeg-full.tar.gz
+tar xzvf ffmpeg-full.tar.gz
+cd ffmpeg-full
+makepkg # We see that there are several dependiencies
+cd ..
+
+# From the official repositories:
+sudo pacman -S yasm ladspa hardening-wrapper
+
+# Installing shine from AUR:
+wget https://aur.archlinux.org/packages/sh/shine/shine.tar.gz
+tar xzvf shine.tar.gz
+cd shine
+makepkg
+sudo pacman -U shine-3.1.0-1-i686.pkg.tar.xz
+cd ..
+
+# Installing libbs2b from AUR:
+wget https://aur.archlinux.org/packages/li/libbs2b/libbs2b.tar.gz
+tar xzvf libbs2b.tar.gz
+cd libbs2b
+makepkg
+sudo pacman -U libbs2b-3.1.0-2-i686.pkg.tar.xz
+cd ..
+
+# Installing opencl-headers12 from AUR:
+wget https://aur.archlinux.org/packages/op/opencl-headers12/opencl-headers12.tar.gz
+tar xzvf opencl-headers12.tar.gz
+cd opencl-headers12
+makepkg
+sudo pacman -U opencl-headers12-1\:1.2.r29463-1-any.pkg.tar.xz
+cd ..
+
+# Installing utvideo-git from AUR:
+wget https://aur.archlinux.org/packages/ut/utvideo-git/utvideo-git.tar.gz
+tar xzvf utvideo-git.tar.gz 
+cd utvideo-git/
+sudo pacman -S nasm
+makepkg
+sudo pacman -U utvideo-git-15.0.0_87_6135aba-1-i686.pkg.tar.xz
+cd ..
+
+# Installing vid.stab from the official repositories:
+sudo pacman -S vid.stab
+
+# Installing frei0r-plugins from the official repositories:
+sudo pacman -S frei0r-plugins
+
+# Installing zeromq from the official repositories:
+sudo pacman -S zeromq
+
+# Installing wavpack from the official repositories:
+sudo pacman -S wavpack
+
+# Installing vo-amrwbenc from AUR:
+wget https://aur.archlinux.org/packages/vo/vo-amrwbenc/vo-amrwbenc.tar.gz
+tar xzvf vo-amrwbenc.tar.gz
+cd vo-amrwbenc
+makepkg
+sudo pacman -U vo-amrwbenc-0.1.3-1-i686.pkg.tar.xz
+cd ..
+
+# Installing vo-aacenc from AUR:
+wget https://aur.archlinux.org/packages/vo/vo-aacenc/vo-aacenc.tar.gz
+tar xzvf vo-aacenc.tar.gz
+cd vo-aacenc
+makepkg
+sudo pacman -U vo-aacenc-0.1.3-1-i686.pkg.tar.xz
+cd ..
+
+# Installing twolame from the official repositories:
+sudo pacman -S twolame
+
+# Installing openal from the official repositories:
+sudo pacman -S openal
+
+# Installing libwebp from the official repositories:
+sudo pacman -S libwebp
+
+# Installing libssh from the official repositories:
+sudo pacman -S libssh
+
+# Installing libiec61883 from the official repositories:
+sudo pacman -S libiec61883
+
+# Installing libgme from the official repositories:
+sudo pacman -S libgme
+
+# Installing libfdk-aac from the official repositories:
+sudo pacman -S libfdk-aac
+
+# Installing  from the official repositories:
+sudo pacman -S libavc1394
+
+# Installing libaacplus from AUR:
+wget https://aur.archlinux.org/packages/li/libaacplus/libaacplus.tar.gz
+tar xzvf libaacplus.tar.gz
+cd libaacplus
+sudo pacman -S unzip
+makepkg
+sudo pacman -U libaacplus-2.0.2-8-i686.pkg.tar.xz
+cd ..
+
+# Installing decklink-sdk from AUR:
+wget https://aur.archlinux.org/packages/de/decklink-sdk/decklink-sdk.tar.gz
+tar xzvf decklink-sdk.tar.gz
+cd decklink-sdk/
+makepkg
+sudo pacman -U decklink-sdk-1\:10.1.4-1-i686.pkg.tar.xz
+cd ..
+
+# Installing celt from the official repositories:
+sudo pacman -S celt
+
+# Installing libsoxr from AUR:
+wget https://aur.archlinux.org/packages/li/libsoxr/libsoxr.tar.gz
+tar xzvf libsoxr.tar.gz
+cd libsoxr/
+sudo pacman -S cmake
+makepkg
+sudo pacman -U libsoxr-0.1.1-2-i686.pkg.tar.xz
+cd ..
+
+Edit your ~/.gnupg/gpg.conf and uncomment the following line:
+keyserver-options auto-key-retrieve
+
+cd ffmpeg-full
+makepkg
+sudo pacman -U ffmpeg-full-1\:2.5.3-1-i686.pkg.tar.xz
+\end{verbatim}
+
+\end{itemize}
+
+%}}}
+
+%}}}
+
+\section{Libav}
+%{{{
+
+\subsection{Ubuntu}
+%{{{
+
+\begin{verbatim}
+sudo apt-get install x264           # H.264
+sudo apt-get install libav-tools    # avconv
+\end{verbatim}
+
+%}}}
+
+%}}}
+
+%}}}
+
+\chapter{Tools and help}
+%{{{
+
+\section{FFMPEG/Libav command line tools}
+%{{{
+
+\begin{enumerate}
+\item \href{https://www.ffmpeg.org/ffmpeg.html}{\texttt{ffmpeg}}/\texttt{avconv}: encodes and transcodes.
+\item \href{https://www.ffmpeg.org/ffplay.html}{\texttt{ffplay}}/\texttt{avplay}: playbacks a video.
+\item \href{https://www.ffmpeg.org/ffprobe.html}{\texttt{ffprobe}}/\texttt{avprobe}: gathers information from multimedia streams.
+\item \href{https://www.ffmpeg.org/ffserver.html}{\texttt{ffserver}}/\texttt{avserver}: a streaming server for both audio and video
+\end{enumerate}
+
+%}}}
+
+\section{\texttt{man}ual}
+%{{{
+
+\begin{itemize}
+
+\item For \texttt{ffmpeg} installed from sources:
+%{{{
+
+\begin{verbatim}
+$ cd doc
+
+# "man" manuals:
+ls *.1
+man ./ffmpeg.1      # FFMPEG's basic manual
+
+# "HTML" manuals:
+ls *.html
+firefox ./ffmpeg.1
+\end{verbatim}
+
+%}}}
+
+\item For  \texttt{ffmpeg/avconv} installed from repository:
+%{{{
+
+\begin{verbatim}
+man ffmpeg
+man avconv
+\end{verbatim}
+
+%}}}
+
+\end{itemize}
+
+%}}}
+
+\section{Built-in help}
+%{{{
+
+\begin{verbatim}
+ffmpeg -help
+avconv -help
+\end{verbatim}
+
+%}}}
+
+\section{Synopsis}
+%{{{
+
+\begin{verbatim}
+ffmpeg/aconv [global_options] {[input_file_options] -i input_file} ... {[output_file_options] output_file} ... 
+\end{verbatim}
+
+%}}}
+
+%}}}
+
+\chapter{\href{http://www.ffmpeg.org/ffprobe.html}{File inspection}}
+%{{{
+
+\begin{verbatim}
+wget http://www.hpca.ual.es/~vruiz/videos/coastguard_352x288x30x420x300.avi
+
+ffmpeg -i /tmp/coastguard_352x288x30x420x300.avi
+# or ...
+ffprobe /tmp/coastguard_352x288x30x420x300.avi
+\end{verbatim}
+
+%}}}
+
+\chapter{Capturing}
+%{{{
+
+\section{Recognized devices}
+%{{{
+
+% Revisar avconv
+\begin{verbatim}
+ffmpeg -devices
+avconv -formats
+\end{verbatim}
+
+%}}}
+
+\section{\href{https://trac.ffmpeg.org/wiki/Capture/ALSA}{Sound rcording (sound) from ALSA}}
+%{{{
+
+\begin{verbatim}
+# Record 30 seconds, stereo, CD quality, from the ALSA mic
+ffmpeg -f alsa -ac 2 -ar 44100 -i default -t 30 out.wav
+ffmpeg -f alsa -ac 2 -ar 44100 -i hw:0 -t 30 out.wav
+avconv -f alsa -ac 2 -ar 44100 -i hw:0 -t 30 out.wav
+\end{verbatim}
+
+%}}}
+
+\section{\href{http://ffmpeg.org/ffmpeg-devices.html\#video4linux2_002c-v4l2}{Video recording from a V4L device}}
+%{{{
+
+\begin{itemize}
+
+\item Video4Linux (V4L) is a part of the Linux Kernel which provides
+  an unified API for video capture (such as a WebCam). At this moment,
+  it is as a subsystem of the \href{http://linuxtv.org}{LinuxTV
+  Project} (V4L2, Analog TV, DVB and Remote Controllers).
+\end{itemize}
+
+\begin{verbatim}
+ffmpeg -f video4linux2 -s 640x480 -r 30 -i /dev/video0 /tmp/1.avi # (/dev/video0 = WebCam)
+avconv -f video4linux2 -s 640x480 -r 30 -i /dev/video0 /tmp/1.avi
+\end{verbatim}
+
+%}}}
+
+\section{\href{https://trac.ffmpeg.org/wiki/Capture/Desktop}{Video recording from the X11}}
+%{{{
+
+%\section{What is x11grab?} % Explicar y punto
+
+\begin{verbatim}
+# Grab CIF region from origin:
+ffmpeg -f x11grab -framerate 25 -video_size cif -i :0.0 -f mpegts - | ffplay -
+#                                                   ^ ^
+#                                                   | |
+#                                                   | +-----+
+#                                                   |       |
+#                                                  :server.display
+
+# Grab from coordinates (10, 20):
+ffmpeg -f x11grab -show_region 1 -framerate 25 -video_size cif -i :0.0+10,20 -f mpegts - | ffplay -
+avconv -f x11grab -show_region 1 -framerate 25 -video_size cif -i :0.0+10,20 -f mpegts - | avplay -
+
+# Grab following the mouse (centered in the captured window):
+ffmpeg -f x11grab -show_region 1 -follow_mouse centered -framerate 25 -video_size cif -i :0.0 -f mpegts - | ffplay -
+avconv -f x11grab -show_region 1 -follow_mouse centered -framerate 25 -video_size cif -i :0.0 -f mpegts - | avplay -
+
+# Capture the full screen, with audio, and produce a file:
+ffmpeg -framerate 25 -f x11grab -i :0.0 -f alsa -ac 2 -i default output.flv
+\end{verbatim}
+
+%# Follow only when the mouse pointer reaches within 100 pixels to edge:
+%ffmpeg -f x11grab -show_region 1 -follow_mouse 100 -framerate 25 -video_size cif -i :0.0 -f mpegts - | ffplay -
+%avconv -f x11grab -show_region 1 -follow_mouse 100 -framerate 25 -video_size cif -i :0.0 -f mpegts - | avplay -
+
+%}}}
+
+%}}}
+
+\chapter{Converting}
+%{{{
+
+\section{\href{https://www.ffmpeg.org/general.html\#File-Formats}{Supported formats} and \href{https://www.ffmpeg.org/ffmpeg-codecs.html}{codecs}}
+%{{{
+
+\begin{verbatim}
+ffmpeg -formats  # List formats (containers)
+ffmpeg -codecs   # List codecs  (algorithms)
+ffmpeg -pix_fmts # List pixel formats
+\end{verbatim}
+
+%}}}
+
+\section{YUV}
+
+\begin{verbatim}
+# From YUV420 to Y
+ffmpeg -f rawvideo -vcodec rawvideo -s 4096x4096 -r 1 -pix_fmt yuv420p -i sun_4096x4096x0.027x420x129.yuv -codec:v rawvideo -pix_fmt gray sun_4096x4096x0.027x420x129.YUV # This YUV extension is needed to put all Y images in one single file
+
+# To show the output file:
+mplayer sun_4096x4096x0.027x420x129.Y -demuxer rawvideo -rawvideo w=4096:h=4096:format=y8
+mplayer sun_4096x4096x0.027x420x129.Y -demuxer rawvideo -rawvideo w=4096:h=4096:fps=1:format=y8
+\end{verbatim}
+
+%\section{MPEG-1/2}
+
+%\section{MPEG-4}
+
+\section{\href{http://www.videolan.org/developers/x264.html}{H.264 (x264)}}
+%{{{
+
+\begin{itemize}
+\item FFMPEG/Libav does not provide a native encoder for H.264 but wraps x264.
+\end{itemize}
+
+\subsection{Presets and Tunes}
+%{{{
+
+\begin{itemize}
+\item As it can be seen with:
+
+\begin{verbatim}
+x264 --help
+\end{verbatim}
+
+  presets are \texttt{ultrafast}, \texttt{uperfast},
+  \texttt{veryfast}, \texttt{faster}, \texttt{fast}, \texttt{medium},
+  \texttt{slow}, \texttt{slower}, \texttt{veryslow} and
+  \texttt{placebo}. From left to right, the compression ratio grows
+  although you more computational resources are needed (roughtly
+  speaking, twice as slow as the previous). Tunings are \texttt{film},
+  \texttt{animation}, \texttt{grain} (used for very grainy or old
+  content), \texttt{stillimage}, \texttt{psnr} (Peak Signal-to-Noise
+  Ratio), \texttt{ssim} (Structural SIMilarity), \texttt{fastdecode}
+  and \texttt{zerolatency}.
+
+\item Tunings and presets can be mixed and matched,
+  e.g. -preset fast -tune film.
+
+\end{itemize}
+
+\subsection{Example}
+
+\begin{verbatim}
+ffmpeg -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -c:v libx264 -tune zerolatency -preset medium -b:v 800k -f mpegts - | ffplay -
+
+avconv -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -c:v libx264 -tune zerolatency -preset medium -b:v 800k -f mpegts - | avplay -
+\end{verbatim}
+
+%}}}
+
+\subsection{\href{https://trac.ffmpeg.org/wiki/Encode/H.264}{Profiles}}
+%{{{
+
+\begin{itemize}
+
+\item Profiles enforce a standard, ensuring compatibility with
+  specific targets by restricting the encoding features used. Nowadays
+  most decoders support the high profile, so this setting could be
+  ignored.
+
+\end{itemize}
+
+\begin{verbatim}
+# Highest compatibility (-profile:v baseline -level 3.0)
+ffmpeg -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -pix_fmt yuv420p -c:v libx264 -profile:v high -level:v 4.0 -b:v 800k -f mpegts - | ffplay -
+
+# Full compatibility (-profile:v baseline -level 30
+ffmpeg -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -pix_fmt yuv420p -c:v libx264 -profile:v baseline -level:v 30 -b:v 800k -f mpegts - | ffplay -
+ffmpeg -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -pix_fmt yuv420p -c:v libx264 -profile:v baseline -level:v 3.0 -b:v 800k -f mpegts - | ffplay -
+avconv -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -pix_fmt yuv420p -c:v libx264 -profile:v baseline -level:v 30 -b:v 800k -f mpegts - | avplay -
+
+# Apple Devices from 2010 (-profile:v main -level 3.1)
+ffmpeg -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -pix_fmt yuv420p -c:v libx264 -profile:v high -level:v 3.1 -b:v 800k -f mpegts - | ffplay -
+avconv -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -pix_fmt yuv420p -c:v libx264 -profile:v high -level:v 31 -b:v 800k -f mpegts - | avplay -
+
+# Apple Ipad2 and AppleTV 3 (-profile:v high -level 4.1)
+ffmpeg -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -pix_fmt yuv420p -c:v libx264 -profile:v baseline -level:v 41 -b:v 800k -f mpegts - | ffplay -
+avconv -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -pix_fmt yuv420p -c:v libx264 -profile:v baseline -level:v 41 -b:v 800k -f mpegts - | avplay -
+\end{verbatim}
+
+%}}}
+
+\subsection{Quality control}
+%{{{
+
+\begin{itemize}
+
+\item This mode compress the video using a constant quality along
+  time. Therefore, it provides the maximun quality although we don't
+  have control on the bit-rate (the only we know, as rule of thumb, is
+  that every increase pf the quantization value by 5 halves the
+  bitrate, 0 being lossless encoding).
+
+\begin{verbatim}
+ffmpeg -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -c:v libx264 -crf 38 -crf_max 42 -f mpegts - | ffplay -
+avconv -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -c:v libx264 -crf 38 -crf_max 42 -f mpegts - | avplay -
+\end{verbatim}
+%avconv -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -c:v libx264 -crf 38 -crf_max 42 -c:a aac out.mov
+
+\item You can control the maximun and minimun bit-rates, and the
+  maximum buffer size. In this case, the quantization value could
+  change although his value can be also controlled. Example:
+
+\begin{verbatim}
+ffmpeg -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -c:v libx264 -crf 38 -crf_max 42 -maxrate 4M -bufsize 2M -f mpegts - | ffplay -
+avconv -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -c:v libx264 -crf 38 -crf_max 42 -maxrate 4M -bufsize 2M -f mpegts - | avplay -
+\end{verbatim}
+
+\end{itemize}
+
+%}}}
+
+\subsection{Bit-rate control}
+%{{{
+
+\begin{itemize}
+
+\item In order to precisely hit a defined filesize, thus a precise
+  average bitrate, two-pass encoding is suggested. It takes more time
+  than using crf and the result perceptually cannot be better, but in
+  many scenarios the size requirement can be the most important issue.
+
+\begin{verbatim}
+time ffmpeg -i /tmp/coastguard_352x288x30x420x300.avi -c:v libx264 -preset medium -b:v 800k -pass 1 -f null -
+time ffmpeg -y -i /tmp/coastguard_352x288x30x420x300.avi -c:v libx264 -preset medium -b:v 800k -pass 2 /tmp/out.mkv
+
+time avconv -i /tmp/coastguard_352x288x30x420x300.avi -c:v libx264 -preset medium -b:v 800k -pass 1 -f null -
+time avconv -y -i /tmp/coastguard_352x288x30x420x300.avi -c:v libx264 -preset medium -b:v 800k -pass 2 /tmp/out.mkv
+\end{verbatim}
+
+\end{itemize}
+
+%}}}
+
+\subsection{Lossless encoding}
+%{{{
+
+\begin{itemize}
+
+\item Setting \texttt{-crf} or \texttt{-qp} to 0 forces x264 in
+  lossless mode. In this case, the \texttt{-preset} settings then
+  impact just the speed/size.
+
+\end{itemize}
+
+\begin{enumerate}
+\item Fastest encoding:
+\begin{verbatim}
+avconv -i input -c:v libx264 -preset superfast -qp 0 -c:a copy out.mkv
+\end{verbatim}
+
+\item Smallest filesize:
+\begin{verbatim}
+avconv -i input -c:v libx264 -preset veryslow -qp 0 -c:a copy out.mkv
+\end{verbatim}
+\end{enumerate}
+
+%}}}
+
+%}}}
+
+\section{HEVC}
+\begin{verbatim}
+# H.264 lossless:
+wget http://www.hpca.ual.es/~vruiz/videos/coastguard_352x288x30x420x300.avi
+
+# Lossy encode:
+ffmpeg -i coastguard_352x288x30x420x300.avi -c:v hevc coastguard_352x288x30x420x300.mp4
+
+# Get info:
+ffprobe coastguard_352x288x30x420x300.mp4
+
+# Play it:
+ffprobe coastguard_352x288x30x420x300.mp4
+\end{verbatim}
+
+\section{\href{https://trac.ffmpeg.org/wiki/Stereoscopic}{3D}}
+%{{{
+
+\begin{verbatim}
+# Download a SBS 3D video:
+youtube-dl https://www.youtube.com/watch?v=YWWbZLl2evE
+
+# Change the name:
+mv Hang Gliding With The GoPro - 3D Side by Side (SBS)-YWWbZLl2evE.mp4 sbs.mp4
+
+# Convert from SBS to "Red cyan gray/monochrome" anaglyph:
+ffmpeg -i sbs.mp4 -vf stereo3d=sbs2l:arcg -acodec copy anaglyph.mp4
+\end{verbatim}
+
+%}}}
+
+%}}}
+
+\chapter{Editing}
+%{{{
+
+\section{Extracting and inserting images}
+%{{{
+
+\begin{verbatim}
+wget http://www.hpca.ual.es/~vruiz/videos/coastguard_352x288x30x420x300.avi
+
+# Extracting the images of a (color) video
+ffmpeg -i coastguard_352x288x30x420x300.avi coastguard_%3d.png
+avconv -i coastguard_352x288x30x420x300.avi coastguard_%3d.png
+animate *.png
+
+# Creating a video with a collection of images
+ffmpeg -i coastguard_%3d.png coastguard.avi
+avconv -i coastguard_%3d.png coastguard.avi
+mplayer coastguard.avi
+\end{verbatim}
+
+%}}}
+
+\section{Creating two videos in parallel}
+%{{{
+
+\begin{verbatim}
+# Creating two videos (with two different formats) in parallel
+ffmpeg -i coastguard_352x288x30x420x300.avi -map 0 1.mkv -map 0 2.mp4
+ffmpeg -i 1.mkv
+ffmpeg -i 2.mp4
+
+avconv -i coastguard_352x288x30x420x300.avi -map 0 1.mkv -map 0 2.mp4
+avconv -i 1.mkv
+avconv -i 2.mp4
+\end{verbatim}
+
+%}}}
+
+\section{Copy and paste}
+%{{{
+
+\begin{verbatim}
+wget http://www.hpca.ual.es/~vruiz/videos/mobile_352x288x30x420x300.avi
+
+ffmpeg -i coastguard_352x288x30x420x300.avi
+ffmpeg -i mobile_352x288x30x420x300.avi
+
+# Concatenate two videos
+ffmpeg -i "concat:coastguard_352x288x30x420x300.avi|mobile_352x288x30x420x300.avi" -y -map 0 -c copy concat.avi
+vlc concat.avi
+
+# Also works for concatenatig:
+# Create a text file containing a list with the files:
+cat list.txt
+file './coastguard_352x288x30x420x300.avi'
+file './mobile_352x288x30x420x300.avi'
+
+ffmpeg -f concat -safe 0 -i list.txt -c copy concat.mp4
+
+# Paste two videos
+ffmpeg -i coastguard_352x288x30x420x300.avi -i mobile_352x288x30x420x300.avi -c copy -map 0:0 -map 1:0 concat.avi
+vlc concat.avi
+\end{verbatim}
+
+%}}}
+
+%}}}
+
+\chapter{Transcoding}
+%{{{
+
+\section{Bit-rate}
+%{{{
+
+\begin{verbatim}
+# What's inside a file:
+ffmpeg -i input.mkv
+
+# Set the video bitrate of the output file to 64 kbit/s:
+$ ffmpeg -i input.avi -b:v 64k -bufsize 32k output.avi
+\end{verbatim}
+
+%}}}
+
+\section{Frame-rate}
+%{{{
+
+\begin{verbatim}
+# Force the frame rate of the output file to 24 fps:
+ffmpeg -i input.avi -r 24 output.avi
+
+# Force the frame rate of the input file (valid for raw formats
+# only) to 1 fps and the frame rate of the output file to 24 fps:
+ffmpeg -r 1 -i input.m2v -r 24 output.avi
+\end{verbatim}
+
+%}}}
+
+%}}}
+
+\chapter{Streaming} % http://sonnati.wordpress.com/2011/08/30/ffmpeg-%E2%80%93-the-swiss-army-knife-of-internet-streaming-%E2%80%93-part-iv/
+%{{{
+
+\section{One-to-one unicast}
+%{{{
+
+\begin{verbatim}
+# Sender:
+
+## UDP:
+ffmpeg -f alsa -i hw:0,0 -acodec mp2 -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -f mpegts udp://localhost:8888 # Runme first!
+
+## TCP:
+ffmpeg -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -f mpegts tcp://localhost:8888 # Runme last!
+
+## RTP/RTSP
+ffmpeg -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -f rtsp -rtsp_transport tcp rtsp://localhost:8888/live.sdp # Runme last!
+
+# Receiver:
+
+## UDP:
+ffplay -i udp://localhost:8888 # Runme last!
+
+## TCP:
+ffplay -i tcp://localhost:8888?listen # Runme first!
+
+## RTP/RTSP
+ffplay -rtsp_flags listen rtsp://localhost:8888/live.sdp?tcp # Runme first!
+\end{verbatim}
+
+%}}}
+
+\section{Multicast}
+%{{{
+
+\begin{verbatim}
+# Sender:
+
+## UDP:
+ffmpeg -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -f mpegts udp://236.0.0.1:8888 # Runme first!
+
+# Receiver:
+
+## UDP:
+ffplay -i udp://236.0.0.1:8888 # Runme last!
+\end{verbatim}
+
+%}}}
+
+\section{One-to-many unicast}
+%{{{ 
+
+\begin{verbatim}
+cat > ffserver.conf << EOF
+Port 8090 
+# bind to all IPs aliased or not 
+BindAddress 0.0.0.0 
+# max number of simultaneous clients 
+MaxClients 1000 
+# max bandwidth per-client (kb/s) 
+MaxBandwidth 10000 
+# Suppress that if you want to launch ffserver as a daemon. 
+NoDaemon 
+
+<Feed feed1.ffm> 
+File /tmp/feed1.ffm 
+FileMaxSize 5M 
+</Feed> 
+
+# FLV output - good for streaming 
+<Stream test.flv> 
+# the source feed 
+Feed feed1.ffm 
+# the output stream format - FLV = FLash Video 
+Format flv 
+VideoCodec flv 
+# this must match the ffmpeg -r argument 
+VideoFrameRate 15 
+# generally leave this is a large number 
+VideoBufferSize 80000 
+# another quality tweak 
+VideoBitRate 200 
+# quality ranges - 1-31 (1 = best, 31 = worst) 
+VideoQMin 1 
+VideoQMax 5 
+VideoSize 352x288 
+# this sets how many seconds in past to start 
+PreRoll 0 
+# wecams don't have audio 
+Noaudio 
+</Stream> 
+
+# ASF output - for windows media player 
+<Stream test.asf> 
+# the source feed 
+Feed feed1.ffm 
+# the output stream format - ASF 
+Format asf 
+VideoCodec msmpeg4 
+# this must match the ffmpeg -r argument 
+VideoFrameRate 15 
+# generally leave this is a large number 
+VideoBufferSize 80000 
+# another quality tweak 
+VideoBitRate 200 
+# quality ranges - 1-31 (1 = best, 31 = worst) 
+VideoQMin 1 
+VideoQMax 5 
+VideoSize 352x288 
+# this sets how many seconds in past to start 
+PreRoll 0 
+# wecams don't have audio 
+Noaudio 
+</Stream>
+
+##################################################################
+# SDP/multicast examples
+#
+# If you want to send your stream in multicast, you must set the
+# multicast address with MulticastAddress. The port and the TTL can
+# also be set.
+#
+# An SDP file is automatically generated by ffserver by adding the
+# 'sdp' extension to the stream name (here
+# http://localhost:8090/test1-sdp.sdp). You should usually give this
+# file to your player to play the stream.
+#
+# The 'NoLoop' option can be used to avoid looping when the stream is
+# terminated.
+<Stream test1-sdp.mpg>
+Format rtp
+Feed feed1.ffm 
+#File "/usr/local/httpd/htdocs/test1.mpg"
+MulticastAddress 224.124.0.1
+MulticastPort 5000
+MulticastTTL 16
+NoLoop
+</Stream>
+EOF
+
+xterm -e "ffserver -f ./ffserver.conf" &
+
+xterm -e "ffmpeg -f alsa -i hw:0,0 -acodec mp2 -f video4linux2 -s 640x480 -r 30 -i /dev/video0 http://localhost:8090/feed1.ffm" &
+
+mplayer http://localhost:8090/test.asf
+\end{verbatim}
+
+%}}}
+
+\begin{comment}
+\section{\href{https://trac.ffmpeg.org/wiki/Encode/FFV1}{Fast Forward Video (FFV)}}
+%{{{
+
+\begin{verbatim}
+ffmpeg -codecs | grep ffv
+...
+ DEV..S ffv1                 FFmpeg video codec #1
+ DEVI.S ffvhuff              Huffyuv FFmpeg variant
+
+ffmpeg -f video4linux2 -s 640x480 -r 30 -i /dev/video0 -vcodec ffv1 -level 1 -coder 1 -context 1 -g 1 -f mpegts - | ffplay -
+avconv -f x11grab -show_region 1 -follow_mouse centered -framerate 25 -video_size cif -i :0.0 -vcodec ffv1 -level 1 -coder 1 -context 1 -g 1 -f mpegts - | avplay -
+\end{verbatim}
+
+%}}}
+\end{comment}
+
+
+
